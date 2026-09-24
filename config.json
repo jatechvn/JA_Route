@@ -1,0 +1,33 @@
+{
+  "internetGateway": "192.168.100.1",
+  "backupGateway": "192.168.1.1",
+  "lanGateway": "172.21.168.1",
+  "lanNetwork": "10.0.0.0",
+  "lanMask": "255.0.0.0",
+  "logFilePath": "logs\\ja_route.log",
+  "customLanRoutes": [
+    "10.0.0.0/255.0.0.0"
+  ],
+  "customInternetRoutes": [
+    "10.191.24.194/255.255.255.255"
+  ],
+  "themeMode": "system",
+  "language": "vi",
+  "activeProfile": "Mặc định",
+  "profiles": {
+    "Mặc định": {
+      "internetGateway": "192.168.100.1",
+      "backupGateway": "192.168.1.1",
+      "lanGateway": "172.21.168.1",
+      "lanNetwork": "10.0.0.0",
+      "lanMask": "255.0.0.0",
+      "customLanRoutes": [
+        "10.0.0.0/255.0.0.0"
+      ],
+      "customInternetRoutes": [
+        "10.191.24.194/255.255.255.255"
+      ]
+    }
+  },
+  "autoFixEnabled": false
+}

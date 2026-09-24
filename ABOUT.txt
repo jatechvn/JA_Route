@@ -1,0 +1,13 @@
+========================================================================
+                       PROJECT INFORMATION CARD
+========================================================================
+Project Name : JA_Route
+Version      : 1.2.0+2
+Release Date : 2026-09-24
+Tech Stack   : Flutter 3.x / Dart 3.x / Windows C++ Native FFI
+Managed By   : JA-Tech System
+Website      : https://jatechvn.github.io/
+------------------------------------------------------------------------
+Description  : Windows Dual Network Route Fixer - Graphical interface to optimize dual connection route settings.
+Features     : Bento Glassmorphism UI, CLI Debug mode, Manual IP/URL Route Verification, Root Cause Analysis, 1-Click Quick Fix, LAN OTA Auto-update.
+========================================================================

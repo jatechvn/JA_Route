@@ -1,0 +1,61 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+
+# Native OS binaries (C++/Rust compiled cores via FFI)
+lib/modules/native/*.dll
+lib/modules/native/*.so
+lib/modules/native/*.dylib
+
+# Platform build outputs
+windows/flutter/ephemeral/
+macos/Flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# Logs and temporary files
+logs/
+*.log
+assets/temp/
+
+# Build & packaging output (dart-build-pro)
+dist/
+dist_pack/
+backup/
+*.lnk
+
+# Local IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.iml
+
+# Claude / Agent local runtime
+.claude/
+
+# Generated files
+*.g.dart
+*.freezed.dart
+
+# License & sensitive credentials
+license.key
+
+# Stale exported JSON configs
+ja_route_config_*.json
+debug_theme.txt
+
+# Large compressed archives & binaries
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.exe
+*.msi
+
+# Dart/Flutter package cache
+.pub-cache/
+.pub/

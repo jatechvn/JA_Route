@@ -1,0 +1,22 @@
+// windows/runner/theme_win11.cpp
+#include "theme_win11.h"
+#include <dwmapi.h>
+
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+#endif
+
+void ApplyThemeWin11(HWND hwnd, bool is_dark, bool is_startup) {
+  BOOL enable_dark_mode = is_dark ? TRUE : FALSE;
+  DwmSetWindowAttribute(hwnd, 20, &enable_dark_mode, sizeof(enable_dark_mode));
+
+  if (is_startup) {
+    // 1. Set backdrop type to DWMSBT_TRANSIENTWINDOW (Acrylic = 3)
+    int backdrop_type = 3;
+    DwmSetWindowAttribute(hwnd, 38, &backdrop_type, sizeof(backdrop_type));
+
+    // 2. Extend frame into client area so DWM renders the backdrop across the entire client area
+    MARGINS margins = { -1, -1, -1, -1 };
+    DwmExtendFrameIntoClientArea(hwnd, &margins);
+  }
+}

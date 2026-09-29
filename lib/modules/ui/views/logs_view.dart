@@ -1,11 +1,13 @@
 // lib/modules/ui/views/logs_view.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../localization.dart';
 import '../../logger_config.dart';
 import '../../logic.dart';
 import '../../native_bridge.dart';
 import '../theme/theme_provider.dart';
+import '../theme/language_provider.dart';
 import '../widgets/app_toast.dart';
 import '../widgets/glass_widgets.dart';
 
@@ -38,7 +40,8 @@ class _LogsViewState extends State<LogsView> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final loc = AppLocalizations(widget.logic.config.language);
+    final language = context.watch<LanguageProvider>();
+    final loc = AppLocalizations(language.currentLanguage.code);
     final allLogs = logMessages;
     final filtered = allLogs
         .where(
@@ -244,8 +247,7 @@ class _LogsViewState extends State<LogsView> {
                     decoration: InputDecoration(
                       isDense: true,
                       border: InputBorder.none,
-                      hintText:
-                          'Lọc log theo từ khóa (INFO, SEVERE, Gateway, IP...)...',
+                      hintText: loc.get('logs_search_hint'),
                       hintStyle: TextStyle(
                         color: colors.textMuted.withValues(alpha: 0.6),
                         fontSize: 11.5,
@@ -272,8 +274,10 @@ class _LogsViewState extends State<LogsView> {
                   ? Center(
                       child: Text(
                         _searchQuery.isEmpty
-                            ? 'Chưa có nhật ký hoạt động nào.'
-                            : 'Không có log nào khớp từ khóa "$_searchQuery".',
+                            ? loc.get('logs_empty_placeholder')
+                            : loc.getWithParams('logs_no_match', {
+                                'query': _searchQuery,
+                              }),
                         style: TextStyle(
                           color: colors.textMuted,
                           fontSize: 12,

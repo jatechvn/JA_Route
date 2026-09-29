@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.0-blue.svg?style=flat-square" alt="Version 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.3.0-blue.svg?style=flat-square" alt="Version 1.3.0">
   <img src="https://img.shields.io/badge/Dart-Flutter-blue.svg?style=flat-square&logo=flutter" alt="Dart & Flutter">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License">
 </p>
@@ -22,12 +22,12 @@
 
 **JA_Route** is an automated Dual-NIC network route optimizer and diagnostic tool for Windows desktop, featuring a modern Bento Glassmorphism UI, intelligent route verification, root cause analysis, and 1-click route fixing.
 
-## Recent Changes (v1.2.0)
-- **Smart Route Verification**: Manual input for any IP, Domain, or URL with DNS resolution, Windows kernel route inspection, TCP port check, and ping latency.
-- **Root Cause Analysis & Misroute Detection**: Automatic alert when private LAN IP is routed to Internet gateway or vice-versa.
-- **⚡ 1-Click Quick Fix**: Instantly add persistent route to Windows routing table.
-- **Multi-column Layout**: Optimized viewports for Diagnostics, Configuration, and About tabs.
-- **Instant Language QuickButton**: 1-click switching between VI, EN, and ZH with automatic Windows locale detection.
+## Recent Changes (v1.3.0)
+- **Official Windows App Icon**: Embedded high-resolution multi-size Windows icon directly into executable PE header and canonical assets structure.
+- **Full Multi-Language Reactivity**: Solved language lock across all tabs; live dynamic switching for Vietnamese (`VI`), English (`EN`), and Chinese (`ZH`) with locale code normalization.
+- **Full-Width Responsive Routing Table**: Converted IPv4 routing display to proportional Flutter `Table` widget with `FlexColumnWidth`, completely eliminating right margin blank spaces.
+- **Enhanced Liquid Glass Droplist**: Raised background opacity to 0.96/0.98 matching Showcase style, with specular edge highlights, deep shadows, and localized search & empty placeholders.
+- **Automated Verification Suite**: Extended automated unit and widget test suite to 32 tests passing with 0 warnings.
 - **LAN OTA Updates**: Seamless auto-updates over local enterprise shares.
 
 <a id="features"></a>

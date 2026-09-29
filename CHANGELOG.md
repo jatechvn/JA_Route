@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-09-29
+
+### 🚀 Nâng cấp & Tính năng mới
+- **Tích hợp Biểu Tượng Ứng Dụng Chính Thức (Official App Icon & EXE Brand)**:
+  - Cập nhật biểu tượng ứng dụng chuẩn Windows đa kích cỡ (16x16 đến 256x256) vào `windows/runner/resources/app_icon.ico` và chuẩn hóa cây tài nguyên `assets/icons/app_icon.ico`.
+  - Nhúng trực tiếp vào PE binary của `ja_route.exe` làm icon chính thức hiển thị trên Windows Explorer, Desktop, Taskbar và Start Menu.
+- **Đồng bộ Đa ngôn ngữ Toàn diện (Multi-Language Reactivity & Localization)**:
+  - Khắc phục triệt để lỗi cố định tiếng Việt khi người dùng chuyển sang Tiếng Anh (`EN`) hoặc Tiếng Trung (`ZH`).
+  - Chuẩn hóa hàm `normalizeLanguageCode` tự động nhận diện và xử lý mọi định dạng mã locale (`'EN'`, `'GB'`, `'zh'`, `'cn'`, v.v.).
+  - Toàn bộ 5 View chính (Dashboard, Config, Diagnostics, Logs, About) và `GlassDropdown` tự động cập nhật ngôn ngữ ngay lập tức khi bấm nút chuyển đổi.
+  - Bản địa hóa hoàn toàn các chuỗi còn sót: thông báo kiểm tra hợp lệ IPv4/Subnet Mask, thanh tìm kiếm Logs, terminal chẩn đoán và hộp thoại tạo profile mạng mới.
+- **Tối ưu Bảng định tuyến IPv4 Toàn Chiều Ngang (Full-Width Responsive Routing Table)**:
+  - Tái cấu trúc bảng định tuyến IPv4 trong tab Chẩn đoán (Diagnostics) từ `DataTable` sang `Table` với tỷ lệ co giãn `FlexColumnWidth` tối ưu.
+  - Lấp đầy 100% diện tích thẻ BentoCard, loại bỏ hoàn toàn khoảng trống thừa ở cạnh phải cột Metric và căn lề phải chỉ số Metric chuyên nghiệp.
+- **Nâng cấp Droplist theo Chuẩn Liquid Glass Showcase**:
+  - Nâng độ đục nền dropdown lên 0.96 (Dark) và 0.98 (Light), bổ sung đường viền phản quang specular highlight và đổ bóng sâu 28px giúp danh sách rõ ràng, dễ nhìn.
+  - Bản địa hóa thanh tìm kiếm bên trong dropdown và trạng thái danh sách trống theo ngôn ngữ hiện hành.
+
+### 🐛 Sửa lỗi & Tối ưu hóa
+- Bổ sung bộ kiểm thử `dropdown_localization_test.dart`, nâng tổng số test tự động lên 32/32 tests pass (100%).
+- Khắc phục hiện tượng widget hiển thị đúp trong `AnimatedSwitcher` khi chuyển đổi ngôn ngữ.
+- Đảm bảo `dart analyze` đạt 0 cảnh báo và code được định dạng chuẩn với `dart format .`.
+
+### 📦 Phát hành
+- Đồng bộ version 1.3.0+3 trong pubspec.yaml, constants.dart, Runner.rc, ABOUT.txt, USERGUIDE.md, README.md, RELEASE_NOTES.md.
+- Đóng gói bản phát hành mới nhất `JA_Route_v1.3.0_Windows_x64.zip` vào thư mục `dist/`.
+
+---
+
 ## [1.2.0] - 2026-09-24
 
 ### 🚀 Nâng cấp & Tính năng mới

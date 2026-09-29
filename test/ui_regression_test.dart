@@ -31,7 +31,7 @@ void main() {
           14.0,
           0.96,
         ),
-        _ => (HardwareTier.ultra, 20.0, 0.25, 20.0, 0.85, 20.0, 0.86),
+        _ => (HardwareTier.ultra, 20.0, 0.25, 20.0, 0.85, 20.0, 0.96),
       };
       void verify() {
         expect(theme.effectiveTier, expected.$1);

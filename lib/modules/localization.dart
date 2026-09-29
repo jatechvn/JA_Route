@@ -2,7 +2,22 @@
 
 class AppLocalizations {
   final String lang;
-  AppLocalizations(this.lang);
+
+  AppLocalizations([String? inputLang])
+    : lang = normalizeLanguageCode(inputLang);
+
+  static String normalizeLanguageCode(String? code) {
+    if (code == null || code.trim().isEmpty) return 'vi';
+    final lower = code
+        .toLowerCase()
+        .trim()
+        .replaceAll('_', '-')
+        .split('-')
+        .first;
+    if (lower == 'en' || lower == 'gb' || lower == 'us') return 'en';
+    if (lower == 'zh' || lower == 'cn') return 'zh';
+    return 'vi';
+  }
 
   static final Map<String, Map<String, String>> _localizedValues = {
     'vi': {
@@ -272,6 +287,58 @@ class AppLocalizations {
       'steps_running_badge': 'Đang chạy ({done}/{total})',
       'steps_done_badge': 'Hoàn tất ({total}/{total})',
       'steps_total_badge': '{total} Bước tiến trình',
+      'about_subtitle':
+          'Công cụ tối ưu hóa & Sửa lỗi định tuyến 2 Card mạng Windows',
+      'about_app_desc':
+          'Ứng dụng hỗ trợ tối ưu hóa và sửa lỗi định tuyến cho máy tính kết nối đồng thời hai mạng (mạng nội bộ cơ quan LAN và Internet công cộng) mà không bị xung đột hoặc mất kết nối. Được viết trên nền tảng Flutter Desktop hiện đại với giao diện Bento Glassmorphism cao cấp.',
+      'about_btn_website': 'Trang chủ Website',
+      'about_btn_github': 'Mã nguồn GitHub',
+      'about_cpu_cores': 'Số nhân CPU / Cores',
+      'about_hw_score': 'Điểm phần cứng (Score)',
+      'about_graphic_tier': 'Cấu hình đồ họa (Tier)',
+      'diag_routing_table_title':
+          'Bảng Định tuyến IPv4 Windows ({count} tuyến)',
+      'diag_refresh_tooltip': 'Làm mới bảng định tuyến',
+      'diag_search_placeholder': 'Tìm kiếm đích, gateway hoặc card mạng...',
+      'diag_no_routes_found': 'Không tìm thấy tuyến định tuyến nào khớp.',
+      'diag_restore_dialog_title': 'Khôi phục Mặc định Windows',
+      'diag_restore_dialog_desc':
+          'Thao tác này sẽ tắt IgnoreDefaultRoutes trên các card mạng, đặt lại Interface Metric về tự động, và xóa các tuyến cố định do công cụ tạo ra.',
+      'diag_restore_cancel': 'Hủy bỏ',
+      'diag_restore_confirm': 'Xác nhận Đặt lại',
+      'metric_destination': 'Đích đến',
+      'metric_active_gateway': 'Active Gateway',
+      'metric_interface': 'Card mạng',
+      'metric_dns': 'Thời gian DNS',
+      'preset_lan_gw': 'Cổng LAN ({ip})',
+      'preset_internet_gw': 'Cổng Internet ({ip})',
+      'diag_tailscale_not_found': 'Không tìm thấy tiến trình Tailscale.',
+      'diag_port_check_failed': 'Không kiểm tra được kết nối cổng.',
+      'diag_admin_required_task':
+          'Yêu cầu quyền Administrator để thực hiện tác vụ này.',
+      'diag_flush_success': 'Đã làm sạch DNS cache và bảng ARP thành công.',
+      'diag_task_failed': 'Thực hiện thất bại.',
+      'diag_restore_success': 'Đã khôi phục cài đặt mạng mặc định thành công.',
+      'config_no_backups': 'Không có bản sao lưu nào',
+      'ota_app_title': 'JA_Route',
+      'config_subnet_item': 'Dải mạng #{index}',
+      'config_subnet_hint': 'Ví dụ: 10.10.0.0/16 hoặc 10.10.0.0 255.255.0.0',
+      'config_subnet_invalid': 'Dải mạng không hợp lệ',
+      'config_ipv4_invalid': 'Địa chỉ IPv4 không hợp lệ',
+      'config_toast_exported': 'Đã xuất cấu hình: {path}',
+      'dropdown_hint': 'Chọn một mục…',
+      'dropdown_search_hint': 'Tìm kiếm {count} mục…',
+      'dropdown_no_items': 'Không tìm thấy mục phù hợp',
+      'logs_search_hint':
+          'Lọc log theo từ khóa (INFO, SEVERE, Gateway, IP...)...',
+      'logs_no_match': 'Không có log nào khớp từ khóa "{query}".',
+      'profile_dialog_hint': 'Nhập tên hồ sơ cấu hình mới',
+      'diag_executing': 'Đang thực thi: {task}...\n',
+      'diag_result_title': '=== KẾT QUẢ [{task}] ===\n\n',
+      'diag_error_executing': 'Lỗi thực thi {task}: {err}',
+      'diag_verifying_target':
+          'Đang tiến hành đối soát tuyến đường cho {target}...\n',
+      'diag_input_parse_error': 'Lỗi phân tích đầu vào verify: {err}',
     },
     'en': {
       'app_title': 'Network Route Optimizer',
@@ -549,6 +616,57 @@ class AppLocalizations {
       'steps_running_badge': 'Running ({done}/{total})',
       'steps_done_badge': 'Done ({total}/{total})',
       'steps_total_badge': '{total} Routine Steps',
+      'about_subtitle': 'Windows Dual Network Route Fixer & Optimizer',
+      'about_app_desc':
+          'Desktop application designed to optimize and resolve routing conflicts when connecting simultaneously to enterprise internal LAN and public Internet. Built on modern Flutter Desktop with high-performance Bento Glassmorphism UI.',
+      'about_btn_website': 'Official Website',
+      'about_btn_github': 'GitHub Repository',
+      'about_cpu_cores': 'CPU Cores',
+      'about_hw_score': 'Hardware Score',
+      'about_graphic_tier': 'Graphic Tier',
+      'diag_routing_table_title': 'Windows IPv4 Routing Table ({count} routes)',
+      'diag_refresh_tooltip': 'Refresh routing table',
+      'diag_search_placeholder': 'Search destination, gateway, or interface...',
+      'diag_no_routes_found': 'No matching routing entries found.',
+      'diag_restore_dialog_title': 'Restore Windows Defaults',
+      'diag_restore_dialog_desc':
+          'This will disable IgnoreDefaultRoutes on adapters, reset Interface Metrics to automatic, and remove persistent routes added by this tool.',
+      'diag_restore_cancel': 'Cancel',
+      'diag_restore_confirm': 'Confirm Reset',
+      'metric_destination': 'Destination',
+      'metric_active_gateway': 'Active Gateway',
+      'metric_interface': 'Interface',
+      'metric_dns': 'DNS Lookup',
+      'preset_lan_gw': 'LAN GW ({ip})',
+      'preset_internet_gw': 'Internet GW ({ip})',
+      'diag_tailscale_not_found': 'Tailscale process not found or not running.',
+      'diag_port_check_failed': 'Port connection check failed.',
+      'diag_admin_required_task':
+          'Administrator privilege is required for this operation.',
+      'diag_flush_success':
+          'Successfully flushed DNS resolver cache and ARP table.',
+      'diag_task_failed': 'Execution failed.',
+      'diag_restore_success':
+          'Network settings restored to Windows defaults successfully.',
+      'config_no_backups': 'No backups available',
+      'ota_app_title': 'JA_Route',
+      'config_subnet_item': 'Subnet #{index}',
+      'config_subnet_hint': 'e.g. 10.10.0.0/16 or 10.10.0.0 255.255.0.0',
+      'config_subnet_invalid': 'Invalid subnet specification',
+      'config_ipv4_invalid': 'Invalid IPv4 address',
+      'config_toast_exported': 'Configuration exported: {path}',
+      'dropdown_hint': 'Select an option…',
+      'dropdown_search_hint': 'Search {count} items…',
+      'dropdown_no_items': 'No matching items found',
+      'logs_search_hint':
+          'Filter logs by keyword (INFO, SEVERE, Gateway, IP...)...',
+      'logs_no_match': 'No logs matching keyword "{query}".',
+      'profile_dialog_hint': 'Enter new profile name',
+      'diag_executing': 'Executing: {task}...\n',
+      'diag_result_title': '=== RESULT [{task}] ===\n\n',
+      'diag_error_executing': 'Error executing {task}: {err}',
+      'diag_verifying_target': 'Verifying route path for {target}...\n',
+      'diag_input_parse_error': 'Verify target input parse error: {err}',
     },
     'zh': {
       'app_title': '双网关路由优化器',
@@ -779,11 +897,61 @@ class AppLocalizations {
       'steps_running_badge': '运行中 ({done}/{total})',
       'steps_done_badge': '完成 ({total}/{total})',
       'steps_total_badge': '{total} 项步骤',
+      'about_subtitle': 'Windows 双网关路由优化与管理工具',
+      'about_app_desc':
+          '专为解决企业内部局域网与公共互联网双网卡同时连接时路由冲突而设计的桌面应用。基于现代 Flutter Desktop 构建，具有高性能便当毛玻璃（Bento Glassmorphism）界面。',
+      'about_btn_website': '官方网站',
+      'about_btn_github': 'GitHub 代码仓库',
+      'about_cpu_cores': 'CPU 核心数',
+      'about_hw_score': '硬件性能评分',
+      'about_graphic_tier': '图形渲染等级',
+      'diag_routing_table_title': 'Windows IPv4 路由表 ({count} 条路由)',
+      'diag_refresh_tooltip': '刷新路由表',
+      'diag_search_placeholder': '搜索目标网络、网关或接口...',
+      'diag_no_routes_found': '未找到匹配的路由条目。',
+      'diag_restore_dialog_title': '恢复 Windows 默认网络设置',
+      'diag_restore_dialog_desc':
+          '此操作将禁用适配器上的 IgnoreDefaultRoutes，将接口跃点数重置为自动，并删除本工具添加的静态路由。',
+      'diag_restore_cancel': '取消',
+      'diag_restore_confirm': '确认重置',
+      'metric_destination': '目标网络',
+      'metric_active_gateway': '活动网关',
+      'metric_interface': '网络接口',
+      'metric_dns': 'DNS 查询',
+      'preset_lan_gw': '局域网网关 ({ip})',
+      'preset_internet_gw': '外网网关 ({ip})',
+      'diag_tailscale_not_found': '未检测到正在运行的 Tailscale 进程。',
+      'diag_port_check_failed': '端口连接检查失败。',
+      'diag_admin_required_task': '此操作需要系统管理员权限。',
+      'diag_flush_success': '已成功刷新 DNS 解析缓存与 ARP 表。',
+      'diag_task_failed': '执行诊断任务失败。',
+      'diag_restore_success': '已成功恢复网络设置为 Windows 默认状态。',
+      'config_no_backups': '暂无可用的备份',
+      'ota_app_title': 'JA_Route',
+      'config_subnet_item': '子网网段 #{index}',
+      'config_subnet_hint': '例如: 10.10.0.0/16 或 10.10.0.0 255.255.0.0',
+      'config_subnet_invalid': '无效的子网规范',
+      'config_ipv4_invalid': '无效的 IPv4 地址',
+      'config_toast_exported': '已导出配置文件: {path}',
+      'dropdown_hint': '请选择一项…',
+      'dropdown_search_hint': '搜索 {count} 项…',
+      'dropdown_no_items': '未找到匹配项',
+      'logs_search_hint': '按关键字筛选日志 (INFO, SEVERE, 网关, IP...)...',
+      'logs_no_match': '没有匹配关键字 "{query}" 的日志。',
+      'profile_dialog_hint': '输入新配置文件名称',
+      'diag_executing': '正在执行: {task}...\n',
+      'diag_result_title': '=== 结果 [{task}] ===\n\n',
+      'diag_error_executing': '执行 {task} 出错: {err}',
+      'diag_verifying_target': '正在验证目标路由 {target}...\n',
+      'diag_input_parse_error': '解析验证目标输入错误: {err}',
     },
   };
 
   String get(String key) {
-    return _localizedValues[lang]?[key] ?? _localizedValues['vi']?[key] ?? key;
+    final effectiveLang = normalizeLanguageCode(lang);
+    return _localizedValues[effectiveLang]?[key] ??
+        _localizedValues['vi']?[key] ??
+        key;
   }
 
   String getWithParams(String key, Map<String, String> params) {

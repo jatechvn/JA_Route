@@ -117,7 +117,7 @@ class _DashboardShellState extends State<DashboardShell> {
                     duration: const Duration(milliseconds: 220),
                     switchInCurve: Curves.easeOutCubic,
                     switchOutCurve: Curves.easeInCubic,
-                    child: _buildCurrentView(),
+                    child: _buildCurrentView(language),
                   ),
                 ),
                 if (isMobile)
@@ -142,7 +142,7 @@ class _DashboardShellState extends State<DashboardShell> {
     );
   }
 
-  Widget _buildCurrentView() {
+  Widget _buildCurrentView(LanguageProvider language) {
     switch (_currentIndex) {
       case 0:
         return DashboardView(
@@ -338,12 +338,12 @@ class _DashboardShellState extends State<DashboardShell> {
             colors: colors,
             onTap: () {
               theme.cyclePerfTier();
-              final langCode = language.currentLanguage.code;
+              final langCode = language.currentLanguage.code.toLowerCase();
               String msg;
-              if (langCode == 'EN') {
+              if (langCode == 'en') {
                 msg =
                     '⚡ Graphic Tier: ${theme.perfLabel} (Optimized for ${theme.cpuCores} CPU Cores)';
-              } else if (langCode == 'CN') {
+              } else if (langCode == 'zh') {
                 msg =
                     '⚡ 硬件档位: ${theme.perfLabel} (针对 ${theme.cpuCores} 核处理器优化)';
               } else {
@@ -367,7 +367,7 @@ class _DashboardShellState extends State<DashboardShell> {
               language.currentLanguage.flag,
               style: const TextStyle(fontSize: 12),
             ),
-            collapsedLabel: language.currentLanguage.code,
+            collapsedLabel: language.currentLanguage.displayCode,
             expandedLabel:
                 '${language.currentLanguage.flag} ${language.currentLanguage.label}',
             textColor: colors.accentCyan,

@@ -9,6 +9,7 @@ import '../../logic.dart';
 import '../../native_bridge.dart';
 import '../theme/app_colors.dart';
 import '../theme/theme_provider.dart';
+import '../theme/language_provider.dart';
 import '../widgets/glass_widgets.dart';
 
 class AboutView extends StatelessWidget {
@@ -20,7 +21,8 @@ class AboutView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final theme = context.watch<ThemeProvider>();
-    final loc = AppLocalizations(logic.config.language);
+    final language = context.watch<LanguageProvider>();
+    final loc = AppLocalizations(language.currentLanguage.code);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -158,7 +160,7 @@ class AboutView extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Windows Dual Network Route Fixer & Optimizer',
+                      loc.get('about_subtitle'),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -172,7 +174,7 @@ class AboutView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Ứng dụng hỗ trợ tối ưu hóa và sửa lỗi định tuyến cho máy tính kết nối đồng thời hai mạng (mạng nội bộ cơ quan LAN và Internet công cộng) mà không bị xung đột hoặc mất kết nối. Được viết trên nền tảng Flutter Desktop hiện đại với giao diện Bento Glassmorphism cao cấp.',
+            loc.get('about_app_desc'),
             style: TextStyle(
               fontSize: 12.5,
               color: colors.textMuted,
@@ -192,9 +194,9 @@ class AboutView extends StatelessWidget {
                   size: 15,
                   color: colors.accentCyan,
                 ),
-                label: const Text(
-                  'Website JATechVN',
-                  style: TextStyle(fontSize: 11.5),
+                label: Text(
+                  loc.get('about_btn_website'),
+                  style: const TextStyle(fontSize: 11.5),
                 ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: colors.accentCyan,
@@ -218,9 +220,9 @@ class AboutView extends StatelessWidget {
                   size: 15,
                   color: colors.accentPurple,
                 ),
-                label: const Text(
-                  'GitHub Repository',
-                  style: TextStyle(fontSize: 11.5),
+                label: Text(
+                  loc.get('about_btn_github'),
+                  style: const TextStyle(fontSize: 11.5),
                 ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: colors.accentPurple,
@@ -299,19 +301,19 @@ class AboutView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _buildInfoRow(
-            'Số nhân CPU / Cores',
+            loc.get('about_cpu_cores'),
             '${theme.cpuCores} Cores',
             colors,
           ),
           const SizedBox(height: 8),
           _buildInfoRow(
-            'Điểm phần cứng (Score)',
+            loc.get('about_hw_score'),
             '${theme.hardwareScore}/100',
             colors,
           ),
           const SizedBox(height: 8),
           _buildInfoRow(
-            'Cấu hình đồ họa (Tier)',
+            loc.get('about_graphic_tier'),
             '${theme.effectiveTier.label} (${theme.effectiveTier.desc})',
             colors,
           ),

@@ -1,10 +1,12 @@
 // lib/modules/ui/views/dashboard_view.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../localization.dart';
 import '../../logger_config.dart';
 import '../../logic.dart';
 import '../theme/app_colors.dart';
 import '../theme/theme_provider.dart';
+import '../theme/language_provider.dart';
 import '../widgets/glass_widgets.dart';
 
 class DashboardView extends StatelessWidget {
@@ -20,7 +22,8 @@ class DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final loc = AppLocalizations(logic.config.language);
+    final language = context.watch<LanguageProvider>();
+    final loc = AppLocalizations(language.currentLanguage.code);
 
     return LayoutBuilder(
       builder: (context, constraints) {

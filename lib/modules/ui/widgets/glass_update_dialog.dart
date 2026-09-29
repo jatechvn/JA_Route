@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import '../theme/language_provider.dart';
+import '../../constants.dart';
 import '../../ota_update_service.dart';
 import 'glass_dialog.dart';
 import 'glass_widgets.dart';
@@ -208,7 +209,7 @@ class _GlassUpdateDialogState extends State<GlassUpdateDialog> {
                         Row(
                           children: [
                             Text(
-                              'JA Mini Showcase',
+                              appName,
                               style: TextStyle(
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.bold,

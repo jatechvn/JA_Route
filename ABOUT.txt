@@ -2,8 +2,8 @@
                        PROJECT INFORMATION CARD
 ========================================================================
 Project Name : JA_Route
-Version      : 1.2.0+2
-Release Date : 2026-09-24
+Version      : 1.3.0+3
+Release Date : 2026-09-29
 Tech Stack   : Flutter 3.x / Dart 3.x / Windows C++ Native FFI
 Managed By   : JA-Tech System
 Website      : https://jatechvn.github.io/

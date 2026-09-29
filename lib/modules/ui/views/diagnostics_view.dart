@@ -1,6 +1,7 @@
 // lib/modules/ui/views/diagnostics_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../localization.dart';
 import '../../logic.dart';
 import '../../models/verification_model.dart';
@@ -8,6 +9,7 @@ import '../../native_bridge.dart';
 import '../../services/verification_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/theme_provider.dart';
+import '../theme/language_provider.dart';
 import '../widgets/app_toast.dart';
 import '../widgets/glass_dialog.dart';
 import '../widgets/glass_widgets.dart';
@@ -103,24 +105,31 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
     String taskName,
     Future<String> Function() action,
   ) async {
+    final langCode = context.read<LanguageProvider>().currentLanguage.code;
+    final loc = AppLocalizations(langCode);
+
     setState(() {
       _diagRunning = true;
       _currentTask = taskName;
       _lastVerifyResult = null;
-      _diagOutput = 'Đang thực thi: $taskName...\n';
+      _diagOutput = loc.getWithParams('diag_executing', {'task': taskName});
     });
 
     try {
       final result = await action();
       if (mounted) {
         setState(() {
-          _diagOutput = '=== KẾT QUẢ [$taskName] ===\n\n$result';
+          _diagOutput =
+              '${loc.getWithParams('diag_result_title', {'task': taskName})}$result';
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _diagOutput = 'Lỗi thực thi $taskName: $e';
+          _diagOutput = loc.getWithParams('diag_error_executing', {
+            'task': taskName,
+            'err': e.toString(),
+          });
         });
       }
     } finally {
@@ -139,10 +148,15 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
       _verifyTargetController.text = directTarget;
     }
 
+    final langCode = context.read<LanguageProvider>().currentLanguage.code;
+    final loc = AppLocalizations(langCode);
+
     setState(() {
       _diagRunning = true;
       _currentTask = 'Verify: $input';
-      _diagOutput = 'Đang tiến hành đối soát tuyến đường cho $input...\n';
+      _diagOutput = loc.getWithParams('diag_verifying_target', {
+        'target': input,
+      });
     });
 
     try {
@@ -161,7 +175,9 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _diagOutput = 'Lỗi phân tích đầu vào verify: $e';
+          _diagOutput = loc.getWithParams('diag_input_parse_error', {
+            'err': e.toString(),
+          });
           _diagRunning = false;
         });
       }
@@ -170,14 +186,15 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
 
   Future<void> _handleQuickFix() async {
     if (_lastVerifyResult == null || _diagRunning) return;
-    final loc = AppLocalizations(widget.logic.config.language);
+    final langCode = context.read<LanguageProvider>().currentLanguage.code;
+    final loc = AppLocalizations(langCode);
     final colors = context.appColors;
 
     if (!widget.logic.isAdmin) {
       showAppToast(
         context,
         colors: colors,
-        message: 'Yêu cầu quyền Administrator để sửa bảng định tuyến Windows.',
+        message: loc.get('diag_admin_required_task'),
         icon: Icons.shield_outlined,
       );
       return;
@@ -218,7 +235,8 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final loc = AppLocalizations(widget.logic.config.language);
+    final language = context.watch<LanguageProvider>();
+    final loc = AppLocalizations(language.currentLanguage.code);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -299,44 +317,34 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                 ],
               ),
               // Expected Route Mode Selector
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: colors.subCardBg,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: colors.subCardBorder),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<ExpectedRoute>(
-                    value: _selectedExpectedRoute,
-                    isDense: true,
-                    dropdownColor: colors.subCardBg,
-                    style: TextStyle(
-                      color: colors.accentCyan,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    items: [
-                      DropdownMenuItem(
-                        value: ExpectedRoute.auto,
-                        child: Text(loc.get('verify_route_auto')),
-                      ),
-                      DropdownMenuItem(
-                        value: ExpectedRoute.lan,
-                        child: Text(loc.get('verify_route_lan')),
-                      ),
-                      DropdownMenuItem(
-                        value: ExpectedRoute.internet,
-                        child: Text(loc.get('verify_route_internet')),
-                      ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() => _selectedExpectedRoute = val);
-                      }
-                    },
+              GlassDropdown<ExpectedRoute>(
+                items: [
+                  GlassDropdownItem(
+                    value: ExpectedRoute.auto,
+                    label: loc.get('verify_route_auto'),
+                    icon: Icons.auto_mode_rounded,
                   ),
+                  GlassDropdownItem(
+                    value: ExpectedRoute.lan,
+                    label: loc.get('verify_route_lan'),
+                    icon: Icons.lan_rounded,
+                  ),
+                  GlassDropdownItem(
+                    value: ExpectedRoute.internet,
+                    label: loc.get('verify_route_internet'),
+                    icon: Icons.public_rounded,
+                  ),
+                ],
+                value: _selectedExpectedRoute,
+                onChanged: (val) =>
+                    setState(() => _selectedExpectedRoute = val),
+                colors: colors,
+                enableSearch: false,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
                 ),
+                borderRadius: 8,
               ),
             ],
           ),
@@ -437,13 +445,17 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
               _buildPresetChip('Cloudflare (1.1.1.1)', '1.1.1.1', colors),
               if (widget.logic.config.lanGateway.isNotEmpty)
                 _buildPresetChip(
-                  'LAN GW (${widget.logic.config.lanGateway})',
+                  loc.getWithParams('preset_lan_gw', {
+                    'ip': widget.logic.config.lanGateway,
+                  }),
                   widget.logic.config.lanGateway,
                   colors,
                 ),
               if (widget.logic.config.internetGateway.isNotEmpty)
                 _buildPresetChip(
-                  'Internet GW (${widget.logic.config.internetGateway})',
+                  loc.getWithParams('preset_internet_gw', {
+                    'ip': widget.logic.config.internetGateway,
+                  }),
                   widget.logic.config.internetGateway,
                   colors,
                 ),
@@ -464,7 +476,7 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                 color: colors.accentPurple,
                 onTap: () => _runDiagTask('Tailscale Status', () async {
                   final res = await nativeBridge.engine?.getTailscaleStatus();
-                  return res ?? 'Không tìm thấy tiến trình Tailscale.';
+                  return res ?? loc.get('diag_tailscale_not_found');
                 }),
                 colors: colors,
               ),
@@ -472,31 +484,27 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                 label: loc.get('diag_port_test'),
                 icon: Icons.electrical_services_rounded,
                 color: colors.accentEmerald,
-                onTap: () =>
-                    _runDiagTask('Test Cổng (Port Connection)', () async {
-                      final gw = widget.logic.config.lanGateway.isNotEmpty
-                          ? widget.logic.config.lanGateway
-                          : '172.21.168.1';
-                      final res = await nativeBridge.engine?.testConnection(
-                        gw,
-                        80,
-                      );
-                      return res ?? 'Không kiểm tra được.';
-                    }),
+                onTap: () => _runDiagTask(loc.get('diag_port_test'), () async {
+                  final gw = widget.logic.config.lanGateway.isNotEmpty
+                      ? widget.logic.config.lanGateway
+                      : '172.21.168.1';
+                  final res = await nativeBridge.engine?.testConnection(gw, 80);
+                  return res ?? loc.get('diag_port_check_failed');
+                }),
                 colors: colors,
               ),
               _buildDiagButton(
                 label: loc.get('diag_btn_flush'),
                 icon: Icons.cleaning_services_rounded,
                 color: colors.accentAmber,
-                onTap: () => _runDiagTask('Flush DNS & ARP', () async {
+                onTap: () => _runDiagTask(loc.get('diag_btn_flush'), () async {
                   if (!widget.logic.isAdmin) {
-                    return 'Yêu cầu quyền Administrator để thực hiện tác vụ này.';
+                    return loc.get('diag_admin_required_task');
                   }
                   final ok = await nativeBridge.engine?.flushArpDns();
                   return (ok ?? false)
-                      ? 'Đã làm sạch DNS cache và bảng ARP thành công.'
-                      : 'Thực hiện thất bại.';
+                      ? loc.get('diag_flush_success')
+                      : loc.get('diag_task_failed');
                 }),
                 colors: colors,
               ),
@@ -504,7 +512,7 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                 label: loc.get('diag_restore_defaults'),
                 icon: Icons.settings_backup_restore_rounded,
                 color: colors.accentRose,
-                onTap: () => _showRestoreDefaultsDialog(context, colors),
+                onTap: () => _showRestoreDefaultsDialog(context, colors, loc),
                 colors: colors,
               ),
             ],
@@ -818,13 +826,13 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildMetricTile(
-                  'Đích đến',
+                  loc.get('metric_destination'),
                   result.resolvedIp ?? result.target.host,
                   colors.accentCyan,
                   colors,
                 ),
                 _buildMetricTile(
-                  'Active Gateway',
+                  loc.get('metric_active_gateway'),
                   result.activeGateway?.isEmpty ?? true
                       ? 'On-link'
                       : result.activeGateway!,
@@ -834,14 +842,14 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                   colors,
                 ),
                 _buildMetricTile(
-                  'Interface',
+                  loc.get('metric_interface'),
                   result.activeInterface ?? 'Auto',
                   colors.textPrimary,
                   colors,
                 ),
                 if (result.dnsTimeMs != null)
                   _buildMetricTile(
-                    'DNS',
+                    loc.get('metric_dns'),
                     '${result.dnsTimeMs}ms',
                     colors.accentPurple,
                     colors,
@@ -1029,7 +1037,9 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Bảng Định tuyến IPv4 Windows (${filtered.length} tuyến)',
+                    loc.getWithParams('diag_routing_table_title', {
+                      'count': '${filtered.length}',
+                    }),
                     style: TextStyle(
                       color: colors.textPrimary,
                       fontSize: 14,
@@ -1044,7 +1054,7 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                   size: 18,
                   color: colors.accentCyan,
                 ),
-                tooltip: 'Làm mới bảng định tuyến',
+                tooltip: loc.get('diag_refresh_tooltip'),
                 onPressed: _fetchRoutes,
               ),
             ],
@@ -1069,7 +1079,7 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                     decoration: InputDecoration(
                       isDense: true,
                       border: InputBorder.none,
-                      hintText: 'Tìm kiếm đích, gateway hoặc card mạng...',
+                      hintText: loc.get('diag_search_placeholder'),
                       hintStyle: TextStyle(
                         color: colors.textMuted.withValues(alpha: 0.6),
                         fontSize: 11.5,
@@ -1087,7 +1097,7 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
               padding: const EdgeInsets.all(24),
               alignment: Alignment.center,
               child: Text(
-                'Không tìm thấy tuyến định tuyến nào khớp.',
+                loc.get('diag_no_routes_found'),
                 style: TextStyle(
                   color: colors.textMuted,
                   fontSize: 12,
@@ -1096,170 +1106,188 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
               ),
             )
           else
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: colors.subCardBorder),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  headingRowHeight: 36,
-                  dataRowMinHeight: 32,
-                  dataRowMaxHeight: 36,
-                  horizontalMargin: 12,
-                  columnSpacing: 20,
-                  headingRowColor: WidgetStateProperty.all(colors.subCardBg),
-                  columns: [
-                    DataColumn(
-                      label: Text(
-                        loc.get('table_dest'),
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.bold,
-                          color: colors.accentCyan,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        loc.get('table_netmask'),
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.bold,
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        loc.get('table_gateway'),
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.bold,
-                          color: colors.accentEmerald,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        loc.get('table_interface'),
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.bold,
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        loc.get('table_metric'),
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.bold,
-                          color: colors.accentPurple,
-                        ),
-                      ),
-                    ),
-                  ],
-                  rows: filtered.asMap().entries.map((entry) {
-                    final idx = entry.key;
-                    final row = entry.value;
-                    final isDefault = row['destination'] == '0.0.0.0';
-                    final isLan =
-                        row['gateway'] == widget.logic.config.lanGateway;
-                    final isInternet =
-                        row['gateway'] == widget.logic.config.internetGateway;
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final minWidth = constraints.maxWidth < 600
+                    ? 600.0
+                    : constraints.maxWidth;
+                return Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: colors.subCardBorder),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: minWidth),
+                      child: Table(
+                        columnWidths: const {
+                          0: FlexColumnWidth(2.6),
+                          1: FlexColumnWidth(2.3),
+                          2: FlexColumnWidth(2.4),
+                          3: FlexColumnWidth(2.4),
+                          4: FlexColumnWidth(1.2),
+                        },
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        children: [
+                          TableRow(
+                            decoration: BoxDecoration(color: colors.subCardBg),
+                            children: [
+                              _buildTableHeaderCell(
+                                loc.get('table_dest'),
+                                colors.accentCyan,
+                              ),
+                              _buildTableHeaderCell(
+                                loc.get('table_netmask'),
+                                colors.textPrimary,
+                              ),
+                              _buildTableHeaderCell(
+                                loc.get('table_gateway'),
+                                colors.accentEmerald,
+                              ),
+                              _buildTableHeaderCell(
+                                loc.get('table_interface'),
+                                colors.textPrimary,
+                              ),
+                              _buildTableHeaderCell(
+                                loc.get('table_metric'),
+                                colors.accentPurple,
+                                textAlign: TextAlign.right,
+                              ),
+                            ],
+                          ),
+                          ...filtered.asMap().entries.map((entry) {
+                            final idx = entry.key;
+                            final row = entry.value;
+                            final isDefault = row['destination'] == '0.0.0.0';
+                            final isLan =
+                                row['gateway'] ==
+                                widget.logic.config.lanGateway;
+                            final isInternet =
+                                row['gateway'] ==
+                                widget.logic.config.internetGateway;
+                            final isEven = idx % 2 == 0;
 
-                    return DataRow(
-                      color: WidgetStateProperty.all(
-                        idx % 2 == 0
-                            ? Colors.transparent
-                            : colors.subCardBg.withValues(alpha: 0.5),
+                            return TableRow(
+                              decoration: BoxDecoration(
+                                color: isEven
+                                    ? Colors.transparent
+                                    : colors.subCardBg.withValues(alpha: 0.35),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: colors.subCardBorder.withValues(
+                                      alpha: 0.35,
+                                    ),
+                                    width: 0.8,
+                                  ),
+                                ),
+                              ),
+                              children: [
+                                _buildTableCell(
+                                  row['destination'] ?? '',
+                                  color: isDefault
+                                      ? colors.accentCyan
+                                      : colors.textPrimary,
+                                  isBold: isDefault,
+                                ),
+                                _buildTableCell(
+                                  row['netmask'] ?? '',
+                                  color: colors.textMuted,
+                                ),
+                                _buildTableCell(
+                                  row['gateway'] ?? '',
+                                  color: isLan
+                                      ? colors.accentAmber
+                                      : (isInternet
+                                            ? colors.accentEmerald
+                                            : colors.textPrimary),
+                                  isBold: isLan || isInternet,
+                                ),
+                                _buildTableCell(
+                                  row['interface'] ?? '',
+                                  color: colors.textMuted,
+                                ),
+                                _buildTableCell(
+                                  row['metric'] ?? '',
+                                  color: colors.accentPurple,
+                                  isBold: true,
+                                  textAlign: TextAlign.right,
+                                ),
+                              ],
+                            );
+                          }),
+                        ],
                       ),
-                      cells: [
-                        DataCell(
-                          Text(
-                            row['destination'] ?? '',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: isDefault
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: isDefault
-                                  ? colors.accentCyan
-                                  : colors.textPrimary,
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            row['netmask'] ?? '',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: colors.textMuted,
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            row['gateway'] ?? '',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: (isLan || isInternet)
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: isLan
-                                  ? colors.accentAmber
-                                  : (isInternet
-                                        ? colors.accentEmerald
-                                        : colors.textPrimary),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            row['interface'] ?? '',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: colors.textMuted,
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            row['metric'] ?? '',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: colors.accentPurple,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ),
+                    ),
+                  ),
+                );
+              },
             ),
         ],
       ),
     );
   }
 
-  void _showRestoreDefaultsDialog(BuildContext context, AppColors colors) {
+  Widget _buildTableHeaderCell(
+    String label,
+    Color color, {
+    TextAlign textAlign = TextAlign.left,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Text(
+        label,
+        textAlign: textAlign,
+        style: TextStyle(
+          fontSize: 11.5,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableCell(
+    String text, {
+    required Color color,
+    bool isBold = false,
+    TextAlign textAlign = TextAlign.left,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyle(
+          fontSize: 11.5,
+          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  void _showRestoreDefaultsDialog(
+    BuildContext context,
+    AppColors colors,
+    AppLocalizations loc,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (ctx) => GlassDialog(
         isDark: isDark,
-        title: 'Khôi phục Mặc định Windows',
+        title: loc.get('diag_restore_dialog_title'),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Thao tác này sẽ tắt IgnoreDefaultRoutes trên các card mạng, đặt lại Interface Metric về tự động, và xóa các tuyến cố định do công cụ tạo ra.',
+              loc.get('diag_restore_dialog_desc'),
               style: TextStyle(
                 fontSize: 12.5,
                 color: colors.textMuted,
@@ -1273,7 +1301,7 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
                   child: Text(
-                    'Hủy bỏ',
+                    loc.get('diag_restore_cancel'),
                     style: TextStyle(color: colors.textMuted),
                   ),
                 ),
@@ -1284,20 +1312,20 @@ class _DiagnosticsViewState extends State<DiagnosticsView> {
                   ),
                   onPressed: () async {
                     Navigator.pop(ctx);
-                    _runDiagTask('Khôi phục Mặc định Windows', () async {
+                    _runDiagTask(loc.get('diag_restore_defaults'), () async {
                       if (!widget.logic.isAdmin) {
-                        return 'Yêu cầu quyền Administrator để thực hiện tác vụ này.';
+                        return loc.get('diag_admin_required_task');
                       }
                       final ok = await nativeBridge.engine
                           ?.restoreSystemDefaults();
                       return (ok ?? false)
-                          ? 'Đã khôi phục cài đặt mạng mặc định thành công.'
-                          : 'Khôi phục thất bại.';
+                          ? loc.get('diag_restore_success')
+                          : loc.get('diag_task_failed');
                     });
                   },
-                  child: const Text(
-                    'Xác nhận Đặt lại',
-                    style: TextStyle(
+                  child: Text(
+                    loc.get('diag_restore_confirm'),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),

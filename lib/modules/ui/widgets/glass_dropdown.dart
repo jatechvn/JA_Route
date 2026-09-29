@@ -2,7 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../localization.dart';
 import '../theme/app_colors.dart';
+import '../theme/language_provider.dart';
 import '../theme/theme_provider.dart';
 import 'glass_widgets.dart';
 
@@ -35,7 +37,7 @@ class GlassDropdown<T> extends StatefulWidget {
   final List<GlassDropdownItem<T>> items;
   final T? value;
   final ValueChanged<T> onChanged;
-  final String hintText;
+  final String? hintText;
   final AppColors colors;
   final double maxHeight;
   final bool enableSearch;
@@ -48,7 +50,7 @@ class GlassDropdown<T> extends StatefulWidget {
     required this.value,
     required this.onChanged,
     required this.colors,
-    this.hintText = 'Chọn một mục…',
+    this.hintText,
     this.maxHeight = 280,
     this.enableSearch = true,
     this.borderRadius = 12,
@@ -93,6 +95,11 @@ class _GlassDropdownState<T> extends State<GlassDropdown<T>> {
     final renderBox = context.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
     final size = renderBox.size;
+    LanguageProvider? langProvider;
+    try {
+      langProvider = Provider.of<LanguageProvider>(context, listen: false);
+    } catch (_) {}
+    final themeProvider = context.read<ThemeProvider?>();
 
     _overlayEntry = OverlayEntry(
       builder: (context) {
@@ -122,17 +129,30 @@ class _GlassDropdownState<T> extends State<GlassDropdown<T>> {
                     }
                     return KeyEventResult.ignored;
                   },
-                  child: _GlassDropdownMenu<T>(
-                    items: widget.items,
-                    selectedValue: widget.value,
-                    maxHeight: widget.maxHeight,
-                    enableSearch:
-                        widget.enableSearch && widget.items.length > 5,
-                    colors: widget.colors,
-                    onSelected: (val) {
-                      _removeOverlay();
-                      widget.onChanged(val);
-                    },
+                  child: MultiProvider(
+                    providers: [
+                      if (langProvider != null)
+                        ChangeNotifierProvider<LanguageProvider>.value(
+                          value: langProvider,
+                        ),
+                      if (themeProvider != null)
+                        ChangeNotifierProvider<ThemeProvider>.value(
+                          value: themeProvider,
+                        ),
+                    ],
+                    child: _GlassDropdownMenu<T>(
+                      items: widget.items,
+                      selectedValue: widget.value,
+                      maxHeight: widget.maxHeight,
+                      enableSearch:
+                          widget.enableSearch && widget.items.length > 5,
+                      colors: widget.colors,
+
+                      onSelected: (val) {
+                        _removeOverlay();
+                        widget.onChanged(val);
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -150,6 +170,10 @@ class _GlassDropdownState<T> extends State<GlassDropdown<T>> {
   @override
   Widget build(BuildContext context) {
     final colors = widget.colors;
+    final language = context.watch<LanguageProvider?>();
+    final loc = AppLocalizations(language?.currentLanguage.code);
+    final effectiveHint = widget.hintText ?? loc.get('dropdown_hint');
+
     final selectedItem = widget.items.cast<GlassDropdownItem<T>?>().firstWhere(
       (item) => item?.value == widget.value,
       orElse: () => null,
@@ -197,7 +221,7 @@ class _GlassDropdownState<T> extends State<GlassDropdown<T>> {
                 ],
                 Expanded(
                   child: Text(
-                    selectedItem?.label ?? widget.hintText,
+                    selectedItem?.label ?? effectiveHint,
                     style: TextStyle(
                       color: selectedItem != null
                           ? colors.textPrimary
@@ -296,9 +320,11 @@ class _GlassDropdownMenuState<T> extends State<_GlassDropdownMenu<T>> {
   @override
   Widget build(BuildContext context) {
     final colors = widget.colors;
+    final language = context.watch<LanguageProvider?>();
+    final loc = AppLocalizations(language?.currentLanguage.code);
     ThemeProvider? theme;
     try {
-      theme = Provider.of<ThemeProvider>(context, listen: false);
+      theme = Provider.of<ThemeProvider>(context);
     } catch (_) {}
     final isDark =
         theme?.isDark ?? (Theme.of(context).brightness == Brightness.dark);
@@ -386,8 +412,10 @@ class _GlassDropdownMenuState<T> extends State<_GlassDropdownMenu<T>> {
                               decoration: InputDecoration(
                                 isDense: true,
                                 border: InputBorder.none,
-                                hintText:
-                                    'Tìm kiếm ${widget.items.length} mục…',
+                                hintText: loc.getWithParams(
+                                  'dropdown_search_hint',
+                                  {'count': '${widget.items.length}'},
+                                ),
                                 hintStyle: TextStyle(
                                   color: colors.textMuted,
                                   fontSize: 11.5,
@@ -420,7 +448,7 @@ class _GlassDropdownMenuState<T> extends State<_GlassDropdownMenu<T>> {
                       ? Padding(
                           padding: const EdgeInsets.all(16),
                           child: Text(
-                            'Không tìm thấy mục phù hợp',
+                            loc.get('dropdown_no_items'),
                             style: TextStyle(
                               color: colors.textMuted,
                               fontSize: 12,

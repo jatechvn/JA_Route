@@ -54,7 +54,7 @@ class ThemeProvider extends ChangeNotifier {
   double _dialogBlur = 20.0;
   double _dialogOpacity = 0.85;
   double _dropdownBlur = 20.0;
-  double _dropdownOpacity = 0.86;
+  double _dropdownOpacity = 0.96;
 
   ThemeProvider({
     String initialMode = 'system',
@@ -167,7 +167,7 @@ class ThemeProvider extends ChangeNotifier {
         _dialogBlur = 20.0;
         _dialogOpacity = 0.85;
         _dropdownBlur = 20.0;
-        _dropdownOpacity = 0.86;
+        _dropdownOpacity = 0.96;
         break;
       case HardwareTier.balanced:
         _cardBlur = 14.0;
@@ -277,7 +277,7 @@ class ThemeProvider extends ChangeNotifier {
     _dialogBlur = 20.0;
     _dialogOpacity = 0.85;
     _dropdownBlur = 20.0;
-    _dropdownOpacity = 0.86;
+    _dropdownOpacity = 0.96;
     _profileHardware();
     notifyListeners();
   }

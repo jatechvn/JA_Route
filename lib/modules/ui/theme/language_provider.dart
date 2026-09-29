@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ja_route/modules/localization.dart';
 
 /// Supported application languages.
 enum AppLanguage {
-  vi('VI', 'Tiếng Việt', '🇻🇳'),
-  en('EN', 'English', '🇬🇧'),
-  zh('ZH', '中文', '🇨🇳');
+  vi('vi', 'Tiếng Việt', '🇻🇳'),
+  en('en', 'English', '🇬🇧'),
+  zh('zh', '中文', '🇨🇳');
 
   final String code;
   final String label;
@@ -14,8 +15,10 @@ enum AppLanguage {
 
   const AppLanguage(this.code, this.label, this.flag);
 
+  String get displayCode => code.toUpperCase();
+
   static AppLanguage fromCode(String code) {
-    switch (code.toLowerCase()) {
+    switch (AppLocalizations.normalizeLanguageCode(code)) {
       case 'vi':
         return AppLanguage.vi;
       case 'en':
@@ -92,6 +95,7 @@ class LanguageProvider extends ChangeNotifier {
     final lang = AppLanguage.fromCode(code);
     if (_currentLanguage != lang) {
       _currentLanguage = lang;
+      notifyListeners();
     }
   }
 
@@ -116,13 +120,17 @@ class LanguageProvider extends ChangeNotifier {
   /// Localized String dictionary lookup with parameter substitution
   String t(String key, [List<dynamic>? args]) {
     final entry = _translations[key];
-    if (entry == null) return key;
-    final langKey = _currentLanguage.code.toLowerCase();
-    var str =
-        entry[langKey] ??
-        (langKey == 'zh' ? entry['cn'] : null) ??
-        entry['vi'] ??
-        key;
+    String str;
+    if (entry != null) {
+      final langKey = _currentLanguage.code.toLowerCase();
+      str =
+          entry[langKey] ??
+          (langKey == 'zh' ? entry['cn'] : null) ??
+          entry['vi'] ??
+          key;
+    } else {
+      str = AppLocalizations(_currentLanguage.code).get(key);
+    }
     if (args != null && args.isNotEmpty) {
       for (final arg in args) {
         if (str.contains('%s')) {

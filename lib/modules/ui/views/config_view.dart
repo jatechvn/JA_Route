@@ -1,11 +1,13 @@
 // lib/modules/ui/views/config_view.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../localization.dart';
 import '../../logic.dart';
 import '../../native_bridge.dart';
 import '../../utils.dart';
 import '../theme/app_colors.dart';
 import '../theme/theme_provider.dart';
+import '../theme/language_provider.dart';
 import '../widgets/app_toast.dart';
 import '../widgets/glass_dialog.dart';
 import '../widgets/glass_widgets.dart';
@@ -105,7 +107,8 @@ class _ConfigViewState extends State<ConfigView> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final loc = AppLocalizations(widget.logic.config.language);
+    final language = context.watch<LanguageProvider>();
+    final loc = AppLocalizations(language.currentLanguage.code);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -391,22 +394,22 @@ class _ConfigViewState extends State<ConfigView> {
           _buildTextField(
             controller: _internetGwController,
             label: loc.get('config_internet_gw'),
-            hint: 'Ví dụ: 192.168.100.1',
+            hint: '192.168.100.1',
             colors: colors,
             validator: (v) => (v == null || !isValidIPv4(v))
-                ? 'Địa chỉ IPv4 không hợp lệ'
+                ? loc.get('config_ipv4_invalid')
                 : null,
           ),
           const SizedBox(height: 10),
           _buildTextField(
             controller: _backupGwController,
             label: loc.get('config_backup_gw'),
-            hint: 'Ví dụ: 192.168.1.1',
+            hint: '192.168.1.1',
             colors: colors,
             validator: (v) {
               final value = v?.trim() ?? '';
               return value.isNotEmpty && !isValidIPv4(value)
-                  ? 'Địa chỉ IPv4 không hợp lệ'
+                  ? loc.get('config_ipv4_invalid')
                   : null;
             },
           ),
@@ -414,10 +417,10 @@ class _ConfigViewState extends State<ConfigView> {
           _buildTextField(
             controller: _lanGwController,
             label: loc.get('config_lan_gw'),
-            hint: 'Ví dụ: 172.21.168.1',
+            hint: '172.21.168.1',
             colors: colors,
             validator: (v) => (v == null || !isValidIPv4(v))
-                ? 'Địa chỉ IPv4 không hợp lệ'
+                ? loc.get('config_ipv4_invalid')
                 : null,
           ),
         ],
@@ -453,10 +456,10 @@ class _ConfigViewState extends State<ConfigView> {
                 child: _buildTextField(
                   controller: _lanNetController,
                   label: loc.get('config_lan_net'),
-                  hint: 'Ví dụ: 10.0.0.0',
+                  hint: '10.0.0.0',
                   colors: colors,
                   validator: (v) => (v == null || !isValidIPv4(v))
-                      ? 'Địa chỉ IP không hợp lệ'
+                      ? loc.get('config_ipv4_invalid')
                       : null,
                 ),
               ),
@@ -465,10 +468,10 @@ class _ConfigViewState extends State<ConfigView> {
                 child: _buildTextField(
                   controller: _lanMaskController,
                   label: loc.get('config_lan_mask'),
-                  hint: 'Ví dụ: 255.0.0.0',
+                  hint: '255.0.0.0',
                   colors: colors,
                   validator: (v) => (v == null || !isValidSubnetMask(v))
-                      ? 'Subnet Mask không hợp lệ'
+                      ? loc.get('config_subnet_invalid')
                       : null,
                 ),
               ),
@@ -478,7 +481,7 @@ class _ConfigViewState extends State<ConfigView> {
           _buildTextField(
             controller: _logFilePathController,
             label: loc.get('config_log_path'),
-            hint: 'Ví dụ: logs\\ja_route.log',
+            hint: 'logs/ja_route.log',
             colors: colors,
           ),
         ],
@@ -523,6 +526,7 @@ class _ConfigViewState extends State<ConfigView> {
             onRemove: (idx) =>
                 setState(() => _lanRouteControllers.removeAt(idx).dispose()),
             colors: colors,
+            loc: loc,
           ),
           const SizedBox(height: 16),
           Divider(color: colors.subCardBorder, height: 1),
@@ -539,6 +543,7 @@ class _ConfigViewState extends State<ConfigView> {
               () => _internetRouteControllers.removeAt(idx).dispose(),
             ),
             colors: colors,
+            loc: loc,
           ),
         ],
       ),
@@ -552,8 +557,8 @@ class _ConfigViewState extends State<ConfigView> {
     required VoidCallback onAdd,
     required ValueChanged<int> onRemove,
     required AppColors colors,
+    required AppLocalizations loc,
   }) {
-    final loc = AppLocalizations(widget.logic.config.language);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -621,13 +626,15 @@ class _ConfigViewState extends State<ConfigView> {
                   Expanded(
                     child: _buildTextField(
                       controller: ctrl,
-                      label: 'Dải mạng #${idx + 1}',
-                      hint: 'Ví dụ: 10.10.0.0/16 hoặc 10.10.0.0 255.255.0.0',
+                      label: loc.getWithParams('config_subnet_item', {
+                        'index': '${idx + 1}',
+                      }),
+                      hint: loc.get('config_subnet_hint'),
                       colors: colors,
                       validator: (v) {
                         final value = v?.trim() ?? '';
                         return value.isNotEmpty && !isValidRouteSpec(value)
-                            ? 'Dải mạng không hợp lệ'
+                            ? loc.get('config_subnet_invalid')
                             : null;
                       },
                     ),
@@ -740,36 +747,27 @@ class _ConfigViewState extends State<ConfigView> {
             Row(
               children: [
                 Expanded(
-                  child: Container(
+                  child: GlassDropdown<String>(
+                    items: widget.logic.availableBackups
+                        .map(
+                          (ts) => GlassDropdownItem<String>(
+                            value: ts,
+                            label: ts,
+                            icon: Icons.history_rounded,
+                          ),
+                        )
+                        .toList(),
+                    value:
+                        _selectedBackupTimestamp ??
+                        widget.logic.availableBackups.first,
+                    onChanged: (val) =>
+                        setState(() => _selectedBackupTimestamp = val),
+                    colors: colors,
+                    enableSearch: false,
+                    borderRadius: 8,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.subCardBg,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colors.subCardBorder),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value:
-                            _selectedBackupTimestamp ??
-                            widget.logic.availableBackups.first,
-                        dropdownColor: colors.cardBg,
-                        style: TextStyle(
-                          color: colors.textPrimary,
-                          fontSize: 12,
-                        ),
-                        items: widget.logic.availableBackups
-                            .map(
-                              (ts) =>
-                                  DropdownMenuItem(value: ts, child: Text(ts)),
-                            )
-                            .toList(),
-                        onChanged: (val) =>
-                            setState(() => _selectedBackupTimestamp = val),
-                      ),
+                      vertical: 8,
                     ),
                   ),
                 ),
@@ -864,7 +862,9 @@ class _ConfigViewState extends State<ConfigView> {
                       showAppToast(
                         context,
                         colors: colors,
-                        message: 'Đã xuất cấu hình: $outPath',
+                        message: loc.getWithParams('config_toast_exported', {
+                          'path': outPath,
+                        }),
                         icon: Icons.check_circle_rounded,
                       );
                     }
@@ -1038,7 +1038,7 @@ class _ConfigViewState extends State<ConfigView> {
               autofocus: true,
               style: TextStyle(color: colors.textPrimary, fontSize: 13),
               decoration: InputDecoration(
-                hintText: 'Nhập tên hồ sơ cấu hình mới',
+                hintText: loc.get('profile_dialog_hint'),
                 hintStyle: TextStyle(
                   color: colors.textMuted.withValues(alpha: 0.5),
                   fontSize: 12,

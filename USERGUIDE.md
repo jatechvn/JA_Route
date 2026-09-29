@@ -1,4 +1,4 @@
-# Hướng dẫn sử dụng JA_Route v1.2.0
+# Hướng dẫn sử dụng JA_Route v1.3.0
 
 Ứng dụng **JA_Route** là công cụ tối ưu và xử lý bảng định tuyến 2 card mạng (Dual-NIC) tự động dành cho hệ điều hành Windows, phát triển trên nền Flutter Desktop với giao diện Bento Glassmorphism hiện đại.
 
@@ -7,7 +7,7 @@
 ## 📦 1. Cài đặt & Khởi chạy
 
 ### Cách 1: Chạy trực tiếp (Portable)
-1. Tải và giải nén file `JA_Route_v1.2.0_Windows_x64.zip`.
+1. Tải và giải nén file `JA_Route_v1.3.0_Windows_x64.zip`.
 2. Chạy file `ja_route.exe` với quyền Administrator (yêu cầu cấp quyền UAC để chỉnh sửa bảng định tuyến hệ thống).
 3. Hoặc chạy file `debug.bat` để mở app ở chế độ **Debug (-debug)** kèm log chi tiết.
 
